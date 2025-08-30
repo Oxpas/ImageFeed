@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum NetworkError: Error {
     case httpStatusCode(Int)

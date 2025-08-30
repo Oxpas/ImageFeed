@@ -219,7 +219,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="Xgq-sq-ReU" kind="show" id="cOR-ES-hFk"/>
+                                    <segue destination="Xgq-sq-ReU" kind="show" identifier="ShowWebView" id="cOR-ES-hFk"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -327,7 +327,7 @@
         <!--SplashViewController-->
         <scene sceneID="w8K-Kg-t8M">
             <objects>
-                <viewController id="X8g-jr-MKP" userLabel="SplashViewController" customClass="SplashViewController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SplashViewController" id="X8g-jr-MKP" userLabel="SplashViewController" customClass="SplashViewController" customModule="Image_Feed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="amn-g3-Tp8">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

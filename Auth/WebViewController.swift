@@ -14,8 +14,8 @@ enum WebViewConstants {
 }
 
 protocol WebViewControllerDelegate: AnyObject {
-    func webViewViewController(_ vc: WebViewController, didAuthenticateWithCode code: String)
-    func webViewViewControllerDidCancel(_ vc: WebViewController)
+    func webViewController(_ vc: WebViewController, didAuthenticateWithCode code: String)
+    func webViewControllerDidCancel(_ vc: WebViewController)
 }
 
 final class WebViewController: UIViewController {
@@ -24,11 +24,8 @@ final class WebViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        loadAuthView()
         webView.navigationDelegate = self
-        
-        updateProgress()
+        loadAuthView()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -83,6 +80,23 @@ final class WebViewController: UIViewController {
         webView.load(request)
     }
     
+
+}
+
+extension WebViewController: WKNavigationDelegate {
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        if let code = code(from: navigationAction) {
+            delegate?.webViewController(self, didAuthenticateWithCode: code)
+            decisionHandler(.cancel)
+        } else {
+            decisionHandler(.allow)
+        }
+      }
+    
     private func code(from navigationAction: WKNavigationAction) -> String? {
         if
             let url = navigationAction.request.url,                         //1
@@ -96,21 +110,6 @@ final class WebViewController: UIViewController {
             return nil
         }
     }
-}
-
-extension WebViewController: WKNavigationDelegate {
-    func webView(
-        _ webView: WKWebView,
-        decidePolicyFor navigationAction: WKNavigationAction,
-        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
-    ) {
-        if let code = code(from: navigationAction) {
-            delegate?.webViewViewController(self, didAuthenticateWithCode: code)
-            decisionHandler(.cancel)
-        } else {
-            decisionHandler(.allow)
-        }
-      }
 }
 
 

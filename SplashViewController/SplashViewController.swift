@@ -23,6 +23,11 @@ final class SplashViewController: UIViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNeedsStatusBarAppearanceUpdate()
+    }
+    
     private func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else {
             assertionFailure("Invalid window configuration")
@@ -35,7 +40,7 @@ final class SplashViewController: UIViewController {
     }
 }
 
-extension SplashViewController: AuthViewControllerDelegate {
+extension SplashViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Проверим, что переходим на авторизацию
         if segue.identifier == showAuthenticationScreenSegueIdentifier {
@@ -55,7 +60,9 @@ extension SplashViewController: AuthViewControllerDelegate {
             super.prepare(for: segue, sender: sender)
         }
     }
-    
+}
+
+extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         dismiss(animated: true)
         switchToTabBarController()

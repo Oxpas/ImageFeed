@@ -1,5 +1,6 @@
 import UIKit
 import WebKit
+import ProgressHUD
 
 enum WebViewConstants {
     static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
@@ -11,36 +12,26 @@ protocol WebViewControllerDelegate: AnyObject {
 }
 
 final class WebViewController: UIViewController {
+    
+    private let showWebViewSegueIdentifier = "ShowWebView"
     @IBOutlet private var webView: WKWebView!
     @IBOutlet private var progressView: UIProgressView!
-
+    
     private var estimatedProgressObservation: NSKeyValueObservation?
-
+    
     weak var delegate: WebViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        webView.navigationDelegate = self
-
         loadAuthView()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        webView.navigationDelegate = self
+        
         estimatedProgressObservation = webView.observe(
             \.estimatedProgress,
-             options: [],
-             changeHandler: { [weak self] _, _ in
-                 guard let self = self else { return }
-                 self.updateProgress()
-             })
-        updateProgress()
-    }
-
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+             options: [.new]
+        ) { [weak self] webView, _ in
+            self?.updateProgress()
+        }
     }
     
     private func loadAuthView() {
@@ -50,20 +41,37 @@ final class WebViewController: UIViewController {
         
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
             URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
             URLQueryItem(name: "scope", value: Constants.accessScope)
         ]
         
         guard let url = urlComponents.url else {
             return
         }
-        
         let request = URLRequest(url: url)
         webView.load(request)
-
-        updateProgress()
     }
+    
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey : Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
+        if keyPath == #keyPath(WKWebView.estimatedProgress) {
+            updateProgress()
+        } else {
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
+    }
+    
+    private func updateProgress() {
+        progressView.progress = Float(webView.estimatedProgress)
+        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+    }
+    
+    
 }
 
 extension WebViewController: WKNavigationDelegate {
@@ -79,7 +87,7 @@ extension WebViewController: WKNavigationDelegate {
             decisionHandler(.allow)
         }
     }
-
+    
     private func code(from navigationAction: WKNavigationAction) -> String? {
         if
             let url = navigationAction.request.url,

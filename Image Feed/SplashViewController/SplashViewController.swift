@@ -13,12 +13,19 @@ final class SplashViewController: UIViewController {
     
     private let storage = OAuth2TokenStorage.shared
     private let profileService = ProfileService.shared
+    private let profileImagesService = ProfileImageService.shared
     
     private var imageView: UIImageView!
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        setupImageView()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        setupImageView()
+        
         if let token = storage.token {
             fetchProfile(token: token)
         } else {
@@ -73,27 +80,29 @@ final class SplashViewController: UIViewController {
     
     private func fetchProfile(token: String) {
         UIBlockingProgressHUD.show()
-        profileService.fetchProfile(token) { [weak self] result in
-            UIBlockingProgressHUD.dismiss()
+               profileService.fetchProfile(token) { [weak self] result in
+                   UIBlockingProgressHUD.dismiss()
+                   
+                   guard let self else { return }
+                   switch result {
+                   case .success(let profile):
+                       profileImagesService.fetchProfileImageURL(username: profile.username) { _ in }
+                       self.switchToTabBarController()
+                   case .failure(let error):
+                       print("Error: \(error)")
+                       break
+                   }
+               }
+           }
 
-            guard let self = self else { return }
-
-            switch result {
-            case let .success(profile):
-                ProfileImageService.shared.fetchProfileImageURL(username: profile.username) { _ in }
-                self.switchToTabBarController()
-
-            case let .failure(error):
-                print("Failed to fetch profile: \(error)")
-                break
-            }
-        }
-    }
 }
 
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        
+        guard let token = storage.token else {
+            return
+        }
+        fetchProfile(token: token)
     }
 }

@@ -9,11 +9,25 @@ final class AuthViewController: UIViewController {
     private let oauth2Service = OAuth2Service.shared
     
     weak var delegate: AuthViewControllerDelegate?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureBackButton()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == showWebViewSegueIdentifier {
+            guard
+                let webViewController = segue.destination as? WebViewController
+            else {
+                assertionFailure("Failed to prepare for \(showWebViewSegueIdentifier)")
+                return
+            }
+            webViewController.delegate = self
+        } else {
+            super.prepare(for: segue, sender: sender)
+        }
     }
     
     private func configureBackButton() {
@@ -24,35 +38,27 @@ final class AuthViewController: UIViewController {
     }
 }
 
+
+
 extension AuthViewController: WebViewControllerDelegate {
     func webViewController(_ vc: WebViewController, didAuthenticateWithCode code: String) {
-        UIBlockingProgressHUD.show()
-        
-            fetchOAuthToken(code) { [weak self] result in
-                UIBlockingProgressHUD.dismiss()
-                guard let self else { return }
-                switch result {
-                case .success:
-                    vc.dismiss(animated: true)
-                    self.delegate?.didAuthenticate(self)
-                    
-                case let .failure(error):
-                    print("Ошибка при аутентификации: \(error.localizedDescription)")
-                    self.showAuthErrorAlert()
-                    vc.dismiss(animated: true)
-                }
-            }
-        }
-    func webViewControllerDidCancel(_ vc: WebViewController) {
         vc.dismiss(animated: true)
+                UIBlockingProgressHUD.show()
+        oauth2Service.fetchOAuthToken(code) { [weak self] result in
+                    UIBlockingProgressHUD.dismiss()
+                    switch result {
+                    case .success:
+                        guard let self else { return }
+                        delegate?.didAuthenticate(self)
+                        print("Successfully authenticated!")
+                    case .failure(let error):
+                        print("Failed to fetch token: \(error)")
+                        self?.showAuthErrorAlert()
+                    }
+                }
     }
-}
-    
-extension AuthViewController {
-    private func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        oauth2Service.fetchOAuthToken(code) { result in
-            completion(result)
-        }
+    func webViewControllerDidCancel(_ vc: WebViewController) {
+        dismiss(animated: true)
     }
 }
 

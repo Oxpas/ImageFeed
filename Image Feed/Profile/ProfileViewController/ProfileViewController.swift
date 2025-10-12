@@ -9,7 +9,7 @@ import UIKit
 import Kingfisher
 
 final class ProfileViewController: UIViewController {
-        
+    
     private lazy var avatarImageView = UIImageView()
     private lazy var nameLabel = UILabel()
     private lazy var loginNameLabel = UILabel()
@@ -93,6 +93,7 @@ final class ProfileViewController: UIViewController {
             logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -26),
             logoutButton.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor)
         ])
+        logoutButton.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
     }
     
     private func updateAvatar() {
@@ -136,6 +137,21 @@ final class ProfileViewController: UIViewController {
     
     @objc
     private func didTapButton() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены хотите выйти?",
+            preferredStyle: .alert
+        )
         
+        let cancelAction = UIAlertAction(title: "Нет", style: .cancel)
+        
+        let logoutAction = UIAlertAction(title: "Да", style: .destructive) { _ in
+            ProfileLogoutService.shared.logout()
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(logoutAction)
+        
+        present(alert, animated: true)
     }
 }

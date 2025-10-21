@@ -1,8 +1,8 @@
 //
-//  TabBarController.swift
+//  Profile.swift
 //  Image Feed
 //
-//  Created by Николай Замараев on 14.09.2025.
+//  Created by Николай Замараев on 17.10.2025.
 //
 
 import Foundation

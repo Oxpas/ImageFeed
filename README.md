@@ -5,6 +5,12 @@
 - [Дизайн в Figma](https://www.figma.com/design/MujlanK7BDoQRrGci5G6pi/Image-Feed)
 - [Unsplash API](https://unsplash.com/documentation)
 
+## **Скриншоты приложения**
+
+<p float="left">
+  <img src="ImageFeed/Screenshots/335shots_so.png"/>
+</p>
+
 # Назначение и цели приложения
 
 Многостраничное приложение предназначено для просмотра изображений через API Unsplash.

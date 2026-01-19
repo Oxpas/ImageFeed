@@ -7,8 +7,9 @@
 
 ## **Скриншоты приложения**
 
+
 <p float="left">
-  <img src="ImageFeed/Screenshots/335shots_so.png"/>
+  <img src="Image Feed/Screenshots/335shots_so.png"/>
 </p>
 
 # Назначение и цели приложения
